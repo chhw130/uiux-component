@@ -1,0 +1,24 @@
+.accordion-container {
+  border: 1px solid #000;
+  border-radius: 10px;
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.accordion-toggle-button {
+  background: none;
+  border: none;
+}
+
+.accordion-content {
+  padding: 10px;
+}
