@@ -1,19 +1,22 @@
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
-  useMemo,
   useState,
+  useCallback,
+  useEffect,
+  type Dispatch,
+  type SetStateAction,
 } from 'react'
 import './accordion.css'
 
+type OpenIndexes = Set<string | number>
+
 const accordionContext = createContext<{
-  isOpen: boolean
-  setIsOpen: (toggle: boolean) => void
+  openIndexes: OpenIndexes
+  setOpenIndexes: Dispatch<SetStateAction<OpenIndexes>>
 }>({
-  isOpen: false,
-  setIsOpen: () => {},
+  openIndexes: new Set(),
+  setOpenIndexes: () => {},
 })
 
 /**
@@ -22,31 +25,59 @@ const accordionContext = createContext<{
 type AccordionProps = {
   children: React.ReactNode
   // isOpen값이 바뀔 때 호출되는 함수인데 Value로 괜찮을까??
-  onValueChange?: (isOpen: boolean) => void
-} & React.HTMLAttributes<HTMLDetailsElement>
+  onValueChange?: (openIndexes: OpenIndexes) => void
+} & React.HTMLAttributes<HTMLDivElement>
 
 export const Accordion = ({
   children,
   onValueChange,
   ...props
 }: AccordionProps) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [openIndexes, setOpenIndexes] = useState<OpenIndexes>(new Set())
 
   const memoizedOnValueChanged = useCallback(
-    (isOpen: boolean) => onValueChange?.(isOpen),
-    [isOpen],
+    (indexes: OpenIndexes) => onValueChange?.(indexes),
+    [openIndexes],
   )
 
   useEffect(() => {
-    memoizedOnValueChanged(isOpen)
-  }, [isOpen])
+    memoizedOnValueChanged(openIndexes)
+  }, [openIndexes])
 
   return (
-    <accordionContext.Provider value={{ isOpen, setIsOpen }}>
-      <details className="accordion-container" {...props}>
+    <accordionContext.Provider value={{ openIndexes, setOpenIndexes }}>
+      <div className="accordion-container" {...props}>
+        {children}
+      </div>
+    </accordionContext.Provider>
+  )
+}
+
+/**
+ * Accordion Item Component
+ */
+const accordionItemContext = createContext<{
+  value: string | number
+}>({
+  value: '',
+})
+
+type AccordionItemProps = {
+  children: React.ReactNode
+  value: string | number
+} & React.HTMLAttributes<HTMLDetailsElement>
+
+export const AccordionItem = ({
+  children,
+  value,
+  ...props
+}: AccordionItemProps) => {
+  return (
+    <accordionItemContext.Provider value={{ value }}>
+      <details className="accordion-item" {...props}>
         {children}
       </details>
-    </accordionContext.Provider>
+    </accordionItemContext.Provider>
   )
 }
 
@@ -61,23 +92,37 @@ export const AccordionHeader = ({
   children,
   ...props
 }: AccordionHeaderProps) => {
-  const { isOpen, setIsOpen } = useContext(accordionContext)
+  const { value } = useContext(accordionItemContext)
+  const { openIndexes, setOpenIndexes } = useContext(accordionContext)
 
-  const toggleIcon = useMemo(() => (isOpen ? '▲' : '▼'), [isOpen])
+  const onClickAccordionHeader = useCallback(() => {
+    if (openIndexes.has(value)) {
+      setOpenIndexes((prev) => {
+        const newIndexes = new Set(prev)
+        newIndexes.delete(value)
+        return newIndexes
+      })
+      return
+    }
 
-  const onClickAccordionHeader = useCallback(
-    () => setIsOpen(!isOpen),
-    [isOpen, setIsOpen],
-  )
+    setOpenIndexes((prev) => {
+      const newIndexes = new Set(prev)
+      newIndexes.add(value)
+      return newIndexes
+    })
+  }, [value, openIndexes])
 
   return (
     <summary
       className="accordion-header"
       onClick={onClickAccordionHeader}
+      tabIndex={0}
       {...props}
     >
       {children}
-      <button className="accordion-toggle-button">{toggleIcon}</button>
+      <button className="accordion-toggle-button" tabIndex={-1}>
+        {'toggle'}
+      </button>
     </summary>
   )
 }
@@ -93,7 +138,10 @@ export const AccordionContent = ({
   children,
   ...props
 }: AccordionContentProps) => {
-  const { isOpen } = useContext(accordionContext)
+  const { openIndexes } = useContext(accordionContext)
+  const { value } = useContext(accordionItemContext)
+
+  const isOpen = openIndexes.has(value)
 
   if (!isOpen) return null
 
@@ -104,5 +152,6 @@ export const AccordionContent = ({
   )
 }
 
+Accordion.Item = AccordionItem
 Accordion.Header = AccordionHeader
 Accordion.Content = AccordionContent
