@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -15,25 +16,46 @@ const accordionContext = createContext<{
   setIsOpen: () => {},
 })
 
+/**
+ * Accordion Wrapper Component
+ */
 type AccordionProps = {
   children: React.ReactNode
-} & React.HTMLAttributes<HTMLDivElement>
+  // isOpen값이 바뀔 때 호출되는 함수인데 Value로 괜찮을까??
+  onValueChange?: (isOpen: boolean) => void
+} & React.HTMLAttributes<HTMLDetailsElement>
 
-export const Accordion = ({ children, ...props }: AccordionProps) => {
+export const Accordion = ({
+  children,
+  onValueChange,
+  ...props
+}: AccordionProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  const memoizedOnValueChanged = useCallback(
+    (isOpen: boolean) => onValueChange?.(isOpen),
+    [isOpen],
+  )
+
+  useEffect(() => {
+    memoizedOnValueChanged(isOpen)
+  }, [isOpen])
 
   return (
     <accordionContext.Provider value={{ isOpen, setIsOpen }}>
-      <div className="accordion-container" {...props}>
+      <details className="accordion-container" {...props}>
         {children}
-      </div>
+      </details>
     </accordionContext.Provider>
   )
 }
 
+/**
+ * Accordion Header Component
+ */
 type AccordionHeaderProps = {
   children: React.ReactNode
-} & React.HTMLAttributes<HTMLDivElement>
+} & React.HTMLAttributes<HTMLElement>
 
 export const AccordionHeader = ({
   children,
@@ -49,17 +71,20 @@ export const AccordionHeader = ({
   )
 
   return (
-    <div
+    <summary
       className="accordion-header"
       onClick={onClickAccordionHeader}
       {...props}
     >
       {children}
       <button className="accordion-toggle-button">{toggleIcon}</button>
-    </div>
+    </summary>
   )
 }
 
+/**
+ * Accordion Content Component
+ */
 type AccordionContentProps = {
   children: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
