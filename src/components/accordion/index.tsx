@@ -150,9 +150,9 @@ export const AccordionHeader = ({
       {...props}
     >
       {children}
-      <button className={styles['accordion-toggle-button']} tabIndex={-1}>
+      <span className={styles['accordion-toggle-button']} aria-hidden="true">
         {buttonIcon}
-      </button>
+      </span>
     </summary>
   )
 }
