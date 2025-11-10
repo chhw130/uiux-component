@@ -135,6 +135,7 @@ export const AccordionHeader = ({
     },
     [value, openIndexes],
   )
+  const tabIndex = useMemo(() => (disabled ? -1 : 0), [disabled])
 
   const buttonIcon = useMemo(
     () => (openIndexes.has(value) ? '▼' : '▶'),
@@ -145,7 +146,7 @@ export const AccordionHeader = ({
     <summary
       className={`${styles['accordion-header']} ${disabled && styles.disabled}`}
       onClick={onClickAccordionHeader}
-      tabIndex={0}
+      tabIndex={tabIndex}
       aria-disabled={disabled}
       {...props}
     >
