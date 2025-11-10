@@ -6,8 +6,9 @@ import {
   useEffect,
   type Dispatch,
   type SetStateAction,
+  useMemo,
 } from 'react'
-import './accordion.css'
+import styles from './accordion.module.css'
 
 type OpenIndexes = Set<string>
 
@@ -52,9 +53,7 @@ export const Accordion = ({
 
   return (
     <accordionContext.Provider value={{ openIndexes, setOpenIndexes }}>
-      <div className="accordion-container" {...props}>
-        {children}
-      </div>
+      <div {...props}>{children}</div>
     </accordionContext.Provider>
   )
 }
@@ -64,26 +63,30 @@ export const Accordion = ({
  */
 const accordionItemContext = createContext<{
   value: string
+  disabled?: boolean
 }>({
   value: '',
+  disabled: false,
 })
 
 type AccordionItemProps = {
   children: React.ReactNode
   value: string
+  disabled?: boolean
 } & React.HTMLAttributes<HTMLDetailsElement>
 
 export const AccordionItem = ({
   children,
   value,
+  disabled,
   ...props
 }: AccordionItemProps) => {
   const { openIndexes } = useContext(accordionContext)
 
   return (
-    <accordionItemContext.Provider value={{ value }}>
+    <accordionItemContext.Provider value={{ value, disabled }}>
       <details
-        className="accordion-item"
+        className={styles['accordion-item']}
         open={openIndexes.has(value)}
         {...props}
       >
@@ -104,12 +107,17 @@ export const AccordionHeader = ({
   children,
   ...props
 }: AccordionHeaderProps) => {
-  const { value } = useContext(accordionItemContext)
+  const { value, disabled } = useContext(accordionItemContext)
   const { openIndexes, setOpenIndexes } = useContext(accordionContext)
 
   const onClickAccordionHeader = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.preventDefault()
+
+      if (disabled) {
+        return
+      }
+
       if (openIndexes.has(value)) {
         setOpenIndexes((prev) => {
           const newIndexes = new Set(prev)
@@ -128,17 +136,21 @@ export const AccordionHeader = ({
     [value, openIndexes],
   )
 
-  const buttonIcon = openIndexes.has(value) ? '▼' : '▶'
+  const buttonIcon = useMemo(
+    () => (openIndexes.has(value) ? '▼' : '▶'),
+    [openIndexes],
+  )
 
   return (
     <summary
-      className="accordion-header"
+      className={`${styles['accordion-header']} ${disabled && styles.disabled}`}
       onClick={onClickAccordionHeader}
       tabIndex={0}
+      aria-disabled={disabled}
       {...props}
     >
       {children}
-      <button className="accordion-toggle-button" tabIndex={-1}>
+      <button className={styles['accordion-toggle-button']} tabIndex={-1}>
         {buttonIcon}
       </button>
     </summary>
@@ -157,7 +169,7 @@ export const AccordionContent = ({
   ...props
 }: AccordionContentProps) => {
   return (
-    <div className="accordion-content" {...props}>
+    <div className={styles['accordion-content']} {...props}>
       {children}
     </div>
   )

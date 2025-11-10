@@ -1,17 +1,16 @@
-.accordion-container {
-  border: 1px solid #000;
-  border-radius: 10px;
-}
-
 .accordion-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border: 1px solid #000;
-  border-radius: 10px 10px 0 0;
+  border-bottom: 1px solid #000;
   cursor: pointer;
   user-select: none;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .accordion-toggle-button {
