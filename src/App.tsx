@@ -12,7 +12,9 @@ const EXAMPLE = {
       quis aliquam nisl nisl eu nisl. 
       Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, 
       quis aliquam nisl nisl eu nisl. 
-      Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc.`,
+      `,
+
+    disabled: i === 2,
   })),
 }
 
@@ -23,22 +25,26 @@ function App() {
     <>
       <section>
         <h2>Accordion</h2>
+        <p>열린 아이템 : {currentOpenValue.join(', ')}</p>
         <Accordion
           defaultValue={['0', '1']}
           onValueChange={(value: string[]) => {
             setCurrentOpenValue(value)
           }}
         >
-          {EXAMPLE.accordion.map((item, idx) => (
-            <Accordion.Item value={idx.toString()} key={idx}>
-              <Accordion.Header>{item.title}</Accordion.Header>
+          {EXAMPLE.accordion.map(({ title, content, disabled }, idx) => (
+            <Accordion.Item
+              value={idx.toString()}
+              key={idx}
+              disabled={disabled}
+            >
+              <Accordion.Header>{title}</Accordion.Header>
               <Accordion.Content>
-                <p>{item.content}</p>
+                <p>{content}</p>
               </Accordion.Content>
             </Accordion.Item>
           ))}
         </Accordion>
-        <p>열린 아이템 : {currentOpenValue.join(', ')}</p>
       </section>
     </>
   )
