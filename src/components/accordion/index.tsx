@@ -9,7 +9,7 @@ import {
 } from 'react'
 import './accordion.css'
 
-type OpenIndexes = Set<string | number>
+type OpenIndexes = Set<string>
 
 const accordionContext = createContext<{
   openIndexes: OpenIndexes
@@ -25,18 +25,24 @@ const accordionContext = createContext<{
 type AccordionProps = {
   children: React.ReactNode
   // isOpen값이 바뀔 때 호출되는 함수인데 Value로 괜찮을까??
-  onValueChange?: (openIndexes: OpenIndexes) => void
+  onValueChange?: (openIndexes: string[]) => void
+  defaultValue?: string[]
 } & React.HTMLAttributes<HTMLDivElement>
 
 export const Accordion = ({
   children,
   onValueChange,
+  defaultValue,
   ...props
 }: AccordionProps) => {
-  const [openIndexes, setOpenIndexes] = useState<OpenIndexes>(new Set())
+  const [openIndexes, setOpenIndexes] = useState<OpenIndexes>(
+    new Set(defaultValue),
+  )
 
   const memoizedOnValueChanged = useCallback(
-    (indexes: OpenIndexes) => onValueChange?.(indexes),
+    (indexes: OpenIndexes) => {
+      onValueChange?.(Array.from(indexes))
+    },
     [openIndexes],
   )
 
@@ -57,14 +63,14 @@ export const Accordion = ({
  * Accordion Item Component
  */
 const accordionItemContext = createContext<{
-  value: string | number
+  value: string
 }>({
   value: '',
 })
 
 type AccordionItemProps = {
   children: React.ReactNode
-  value: string | number
+  value: string
 } & React.HTMLAttributes<HTMLDetailsElement>
 
 export const AccordionItem = ({
@@ -72,9 +78,15 @@ export const AccordionItem = ({
   value,
   ...props
 }: AccordionItemProps) => {
+  const { openIndexes } = useContext(accordionContext)
+
   return (
     <accordionItemContext.Provider value={{ value }}>
-      <details className="accordion-item" {...props}>
+      <details
+        className="accordion-item"
+        open={openIndexes.has(value)}
+        {...props}
+      >
         {children}
       </details>
     </accordionItemContext.Provider>
@@ -95,22 +107,28 @@ export const AccordionHeader = ({
   const { value } = useContext(accordionItemContext)
   const { openIndexes, setOpenIndexes } = useContext(accordionContext)
 
-  const onClickAccordionHeader = useCallback(() => {
-    if (openIndexes.has(value)) {
+  const onClickAccordionHeader = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.preventDefault()
+      if (openIndexes.has(value)) {
+        setOpenIndexes((prev) => {
+          const newIndexes = new Set(prev)
+          newIndexes.delete(value)
+          return newIndexes
+        })
+        return
+      }
+
       setOpenIndexes((prev) => {
         const newIndexes = new Set(prev)
-        newIndexes.delete(value)
+        newIndexes.add(value)
         return newIndexes
       })
-      return
-    }
+    },
+    [value, openIndexes],
+  )
 
-    setOpenIndexes((prev) => {
-      const newIndexes = new Set(prev)
-      newIndexes.add(value)
-      return newIndexes
-    })
-  }, [value, openIndexes])
+  const buttonIcon = openIndexes.has(value) ? '▼' : '▶'
 
   return (
     <summary
@@ -121,7 +139,7 @@ export const AccordionHeader = ({
     >
       {children}
       <button className="accordion-toggle-button" tabIndex={-1}>
-        {'toggle'}
+        {buttonIcon}
       </button>
     </summary>
   )
@@ -138,13 +156,6 @@ export const AccordionContent = ({
   children,
   ...props
 }: AccordionContentProps) => {
-  const { openIndexes } = useContext(accordionContext)
-  const { value } = useContext(accordionItemContext)
-
-  const isOpen = openIndexes.has(value)
-
-  if (!isOpen) return null
-
   return (
     <div className="accordion-content" {...props}>
       {children}
