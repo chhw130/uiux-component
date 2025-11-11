@@ -137,11 +137,6 @@ export const AccordionHeader = ({
   )
   const tabIndex = useMemo(() => (disabled ? -1 : 0), [disabled])
 
-  const buttonIcon = useMemo(
-    () => (openIndexes.has(value) ? '▼' : '▶'),
-    [openIndexes],
-  )
-
   return (
     <summary
       className={`${styles['accordion-header']} ${disabled && styles.disabled}`}
@@ -152,7 +147,7 @@ export const AccordionHeader = ({
     >
       {children}
       <span className={styles['accordion-toggle-button']} aria-hidden="true">
-        {buttonIcon}
+        ▶
       </span>
     </summary>
   )
