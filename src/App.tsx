@@ -5,13 +5,21 @@ import { Accordion } from './components/accordion'
 const EXAMPLE = {
   accordion: Array.from({ length: 5 }, (_, i) => ({
     title: `accordion ${i + 1}`,
-    content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-      Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, 
-      quis aliquam nisl nisl eu nisl. 
-      Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, 
-      quis aliquam nisl nisl eu nisl. 
-      Donec euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, 
-      quis aliquam nisl nisl eu nisl. 
+    content: `이 글은 ${i + 1}번째 아이템의 내용입니다.
+  This release includes comprehensive bug fixes across 14+ components:
+
+Checkbox: Fixed indeterminate initial state and api.checkedState accuracy
+Combobox: Fixed initial value propagation in controlled single-select mode
+Dialog & Popover: Improved focus trap scope for elements with aria-controls
+Listbox: Fixed Enter key behavior when no item is highlighted
+Number Input: Fixed cursor jumping when typing in formatted values
+Pagination: Added getPageUrl prop for link-based pagination
+Pin Input: Fixed Cmd+Backspace and Cmd+Delete keyboard shortcuts
+Scroll Area: Fixed Safari RTL scrollbar positioning and resize tracking
+Select: Fixed required state accessibility
+Slider: Fixed dragging behavior when disabled mid-operation
+Switch: Fixed data-active attribute consistency with runtime disabled changes
+Tabs: Improved indicator positioning with getBoundingClientRect()
       `,
 
     disabled: i === 2,

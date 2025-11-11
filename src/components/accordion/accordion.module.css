@@ -6,6 +6,7 @@
   border-bottom: 1px solid #000;
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 
 .disabled {
@@ -16,8 +17,25 @@
 .accordion-toggle-button {
   background: none;
   border: none;
+  transition: transform 0.3s ease-out;
+}
+
+.accordion-item[open] .accordion-toggle-button {
+  transform: rotate(90deg);
+}
+
+.accordion-item::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0 10px;
+  transition: grid-template-rows 0.3s ease,
+    content-visibility 0.3s allow-discrete;
+}
+
+.accordion-item[open]::details-content {
+  grid-template-rows: 1fr;
 }
 
 .accordion-content {
-  padding: 10px;
+  overflow: hidden;
 }
