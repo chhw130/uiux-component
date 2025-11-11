@@ -47,9 +47,7 @@ function App() {
               disabled={disabled}
             >
               <Accordion.Header>{title}</Accordion.Header>
-              <Accordion.Content>
-                <p>{content}</p>
-              </Accordion.Content>
+              <Accordion.Content>{content}</Accordion.Content>
             </Accordion.Item>
           ))}
         </Accordion>
