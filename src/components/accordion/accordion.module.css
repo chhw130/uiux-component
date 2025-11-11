@@ -27,7 +27,7 @@
 .accordion-item::details-content {
   display: grid;
   grid-template-rows: 0fr;
-  padding: 0 10px;
+  padding: 15px;
   transition: grid-template-rows 0.3s ease,
     content-visibility 0.3s allow-discrete;
 }
