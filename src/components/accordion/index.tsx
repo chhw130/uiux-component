@@ -165,8 +165,10 @@ export const AccordionContent = ({
   ...props
 }: AccordionContentProps) => {
   return (
-    <div className={styles['accordion-content']} {...props}>
-      {children}
+    <div className={styles['accordion-content']}>
+      <div className={styles['accordion-content-inner']} {...props}>
+        {children}
+      </div>
     </div>
   )
 }
