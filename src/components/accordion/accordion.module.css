@@ -38,3 +38,7 @@
 .accordion-content {
   overflow: hidden;
 }
+
+.accordion-content-inner {
+  padding: 15px;
+}
