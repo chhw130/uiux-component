@@ -7,6 +7,8 @@ import {
   type Dispatch,
   type SetStateAction,
   useMemo,
+  type ReactNode,
+  type ComponentProps,
 } from 'react'
 import styles from './accordion.module.css'
 
@@ -24,11 +26,10 @@ const accordionContext = createContext<{
  * Accordion Wrapper Component
  */
 type AccordionProps = {
-  children: React.ReactNode
-  // isOpen값이 바뀔 때 호출되는 함수인데 Value로 괜찮을까??
+  children: ReactNode
   onValueChange?: (openIndexes: string[]) => void
   defaultValue?: string[]
-} & React.HTMLAttributes<HTMLDivElement>
+} & ComponentProps<'div'>
 
 export const Accordion = ({
   children,
@@ -70,10 +71,10 @@ const accordionItemContext = createContext<{
 })
 
 type AccordionItemProps = {
-  children: React.ReactNode
+  children: ReactNode
   value: string
   disabled?: boolean
-} & React.HTMLAttributes<HTMLDetailsElement>
+} & ComponentProps<'details'>
 
 export const AccordionItem = ({
   children,
@@ -100,8 +101,8 @@ export const AccordionItem = ({
  * Accordion Header Component
  */
 type AccordionHeaderProps = {
-  children: React.ReactNode
-} & React.HTMLAttributes<HTMLElement>
+  children: ReactNode
+} & ComponentProps<'summary'>
 
 export const AccordionHeader = ({
   children,
@@ -157,8 +158,8 @@ export const AccordionHeader = ({
  * Accordion Content Component
  */
 type AccordionContentProps = {
-  children: React.ReactNode
-} & React.HTMLAttributes<HTMLDivElement>
+  children: ReactNode
+} & ComponentProps<'div'>
 
 export const AccordionContent = ({
   children,
