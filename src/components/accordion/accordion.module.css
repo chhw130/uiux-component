@@ -1,0 +1,44 @@
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #000;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.accordion-toggle-button {
+  background: none;
+  border: none;
+  transition: transform 0.3s ease-out;
+}
+
+.accordion-item[open] .accordion-toggle-button {
+  transform: rotate(90deg);
+}
+
+.accordion-item::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease,
+    content-visibility 0.3s allow-discrete;
+}
+
+.accordion-item[open]::details-content {
+  grid-template-rows: 1fr;
+}
+
+.accordion-content {
+  overflow: hidden;
+}
+
+.accordion-content-inner {
+  padding: 15px;
+}
