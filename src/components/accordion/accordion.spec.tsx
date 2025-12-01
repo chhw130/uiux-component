@@ -15,7 +15,7 @@ describe('Accordion 컴포넌트', () => {
     },
   ] as const
 
-  it('Accordion 컴포넌트의 올바른 요소를 렌더링합니다.', () => {
+  it('Accordion 컴포넌트의 올바른 요소를 렌더링한다.', () => {
     render(
       <Accordion>
         <Accordion.Item value="item-1">
@@ -38,7 +38,7 @@ describe('Accordion 컴포넌트', () => {
     expect(contentText).not.toBeVisible()
   })
 
-  it('Accordion 컴포넌트의 헤더를 클릭하면 콘텐츠가 펼쳐지고 닫힙니다.', async () => {
+  it('Accordion 컴포넌트의 헤더를 클릭하면 콘텐츠가 펼쳐지고 닫힌다.', async () => {
     render(
       <Accordion>
         <Accordion.Item value="item-1">
@@ -60,7 +60,7 @@ describe('Accordion 컴포넌트', () => {
     expect(details).not.toHaveAttribute('open')
   })
 
-  it('defaultValue 속성을 통해 초기 열린 아이템을 설정 할 수 있습니다.', () => {
+  it('defaultValue 속성을 통해 초기 열린 아이템을 설정 할 수 있다.', () => {
     render(
       <Accordion defaultValue={['item-1']}>
         {CONTENTS.map(({ header, content }, index) => (
@@ -81,7 +81,7 @@ describe('Accordion 컴포넌트', () => {
     expect(details2).toHaveAttribute('open')
   })
 
-  it('onValueChange 속성을 통해 열려있는 아이템이 변경될 때 호출되는 콜백 함수를 설정 할 수 있습니다. 콜백 함수의 인자는 현재 열려있는 accordion의 value 배열입니다.', async () => {
+  it('onValueChange 속성을 통해 열려있는 아이템이 변경될 때 호출되는 콜백 함수를 설정 할 수 있습니다. 콜백 함수의 인자는 현재 열려있는 accordion의 value 배열이다.', async () => {
     const onValueChange = vi.fn()
     render(
       <Accordion onValueChange={onValueChange}>
@@ -107,7 +107,7 @@ describe('Accordion 컴포넌트', () => {
     expect(onValueChange).toHaveBeenLastCalledWith(['item-1'])
   })
 
-  it('키보드(Tab, Enter, Space)로 아코디언을 조작할 수 있어야 합니다.', async () => {
+  it('키보드(Tab, Enter, Space)로 아코디언을 조작할 수 있어야 한다.', async () => {
     render(
       <Accordion>
         <Accordion.Item value="item-1">
@@ -137,5 +137,36 @@ describe('Accordion 컴포넌트', () => {
      * 하지만 summary details기반의 컴포넌트는 기본적으로 space키를 지원하고 있음.
      * 따라서 기본 브라우저 동작을 지원하는 부분을 살리는 게 좋다고 판단함. -> space 키도 지원.
      */
+  })
+
+  it('disabled 상태일 때는 아코디언이 열리지 않아야 한다.', async () => {
+    render(
+      <Accordion>
+        <Accordion.Item value="item-0" disabled>
+          <Accordion.Header>{CONTENTS[0].header}</Accordion.Header>
+          <Accordion.Content>{CONTENTS[0].content}</Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item value="item-1">
+          <Accordion.Header>{CONTENTS[1].header}</Accordion.Header>
+          <Accordion.Content>{CONTENTS[1].content}</Accordion.Content>
+        </Accordion.Item>
+      </Accordion>,
+    )
+
+    const disabledHeader = screen.getByText(CONTENTS[0].header)
+    const details = disabledHeader.closest('details')
+
+    await userEvent.click(disabledHeader)
+    expect(details).not.toHaveAttribute('open')
+
+    await userEvent.keyboard('{enter}')
+    expect(details).not.toHaveAttribute('open')
+
+    /**
+     * 활성화 된 다음 accordion은 focus 활성화가 가능함.
+     */
+    const normalHeader = screen.getByText(CONTENTS[1].header)
+    await userEvent.tab()
+    expect(normalHeader).toHaveFocus()
   })
 })
