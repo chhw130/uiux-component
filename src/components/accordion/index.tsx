@@ -109,39 +109,48 @@ export const AccordionHeader = ({
   ...props
 }: AccordionHeaderProps) => {
   const { value, disabled } = useContext(accordionItemContext)
-  const { openIndexes, setOpenIndexes } = useContext(accordionContext)
+  const { setOpenIndexes } = useContext(accordionContext)
+
+  const toggleAccordion = useCallback(() => {
+    if (disabled) {
+      return
+    }
+    setOpenIndexes((currentOpenIndexes) => {
+      const newIndexes = new Set(currentOpenIndexes)
+      if (newIndexes.has(value)) {
+        newIndexes.delete(value)
+      } else {
+        newIndexes.add(value)
+      }
+      return newIndexes
+    })
+  }, [disabled, setOpenIndexes, value])
 
   const onClickAccordionHeader = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.preventDefault()
-
-      if (disabled) {
-        return
-      }
-
-      if (openIndexes.has(value)) {
-        setOpenIndexes((prev) => {
-          const newIndexes = new Set(prev)
-          newIndexes.delete(value)
-          return newIndexes
-        })
-        return
-      }
-
-      setOpenIndexes((prev) => {
-        const newIndexes = new Set(prev)
-        newIndexes.add(value)
-        return newIndexes
-      })
+      toggleAccordion()
     },
-    [value, openIndexes],
+    [toggleAccordion],
   )
+
+  const onKeyDownAccordionHeader = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        toggleAccordion()
+      }
+    },
+    [toggleAccordion],
+  )
+
   const tabIndex = useMemo(() => (disabled ? -1 : 0), [disabled])
 
   return (
     <summary
       className={`${styles['accordion-header']} ${disabled && styles.disabled}`}
       onClick={onClickAccordionHeader}
+      onKeyDown={onKeyDownAccordionHeader}
       tabIndex={tabIndex}
       aria-disabled={disabled}
       {...props}
