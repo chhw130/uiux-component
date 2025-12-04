@@ -26,7 +26,6 @@ const accordionContext = createContext<{
  * Accordion Wrapper Component
  */
 type AccordionProps = {
-  children: ReactNode
   onValueChange?: (openIndexes: string[]) => void
   defaultValue?: string[]
 } & ComponentProps<'div'>
@@ -34,12 +33,17 @@ type AccordionProps = {
 export const Accordion = ({
   children,
   onValueChange,
-  defaultValue,
+  defaultValue = [],
   ...props
 }: AccordionProps) => {
   const [openIndexes, setOpenIndexes] = useState<OpenIndexes>(
     new Set(defaultValue),
   )
+
+  const defaultValueKey = JSON.stringify(defaultValue)
+  useEffect(() => {
+    setOpenIndexes(new Set(Array.isArray(defaultValue) ? defaultValue : []))
+  }, [defaultValueKey])
 
   const memoizedOnValueChanged = useCallback(
     (indexes: OpenIndexes) => {
