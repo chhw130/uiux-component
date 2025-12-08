@@ -2,8 +2,8 @@
 name: "Docs Issue \U0001F4D1"
 about: 문서화 관련 작업 이슈
 title: ''
-labels: ''
-assignees: ''
+labels: documentation
+assignees: chhw130
 
 ---
 

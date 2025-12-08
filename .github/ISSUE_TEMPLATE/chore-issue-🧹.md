@@ -3,7 +3,7 @@ name: "Chore Issue \U0001F9F9"
 about: 간단 세팅 작업 등 관련 이슈
 title: ''
 labels: ''
-assignees: ''
+assignees: chhw130
 
 ---
 

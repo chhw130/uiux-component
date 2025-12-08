@@ -3,7 +3,7 @@ name: Function Issue ⚙️
 about: 기능(개발,수정,성능 최적화 등) 관련 이슈
 title: ''
 labels: ''
-assignees: ''
+assignees: chhw130
 
 ---
 
