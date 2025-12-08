@@ -6,7 +6,7 @@ import OverlaySection from './components/overlay/OverlaySection'
 function App() {
   return (
     <Overlay>
-      {/* <AccordionSection /> */}
+      <AccordionSection />
       <OverlaySection />
     </Overlay>
   )

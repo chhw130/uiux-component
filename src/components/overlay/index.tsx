@@ -1,5 +1,6 @@
 import { createContext, useCallback, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import styles from './overlay.module.css'
 
 type OverlayContextType = {
   isOpen: boolean
@@ -13,12 +14,17 @@ export const overlayContext = createContext<OverlayContextType>({
   closeOverlay: () => {},
 })
 
-const OverayComponent = ({ children }: { children: ReactNode }) => {
+const OverayComponent = ({
+  children,
+  onClose,
+}: {
+  children: ReactNode
+  onClose: (event: React.MouseEvent<HTMLDivElement>) => void
+}) => {
   return (
-    <>
-      123
-      <div>{children}</div>
-    </>
+    <div className={styles['overlay-container']} onClick={onClose}>
+      <div className={styles['overlay-content']}>{children}</div>
+    </div>
   )
 }
 
@@ -27,22 +33,31 @@ export const Overlay = ({ children }: { children: ReactNode }) => {
   const [overlayChildren, setOverlayChildren] = useState<ReactNode>(null)
 
   const openOverlay = useCallback((children: ReactNode) => {
-    console.log(1)
     setIsOpen(true)
     setOverlayChildren(children)
   }, [])
 
   const closeOverlay = useCallback(() => {
-    console.log(2)
     setIsOpen(false)
   }, [])
+
+  const clickOverlayOutside = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (event.target === event.currentTarget) {
+        closeOverlay()
+      }
+    },
+    [closeOverlay],
+  )
 
   return (
     <overlayContext.Provider value={{ isOpen, openOverlay, closeOverlay }}>
       {children}
       {isOpen &&
         createPortal(
-          <OverayComponent>{overlayChildren}</OverayComponent>,
+          <OverayComponent onClose={clickOverlayOutside}>
+            {overlayChildren}
+          </OverayComponent>,
           document.body,
         )}
     </overlayContext.Provider>
