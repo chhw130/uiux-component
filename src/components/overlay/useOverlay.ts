@@ -4,5 +4,5 @@ import { overlayContext } from '.'
 export const useOverlay = () => {
   const { isOpen, openOverlay, closeOverlay } = useContext(overlayContext)
 
-  return { isOpen, openOverlay, closeOverlay }
+  return { isOpen, onOpen: openOverlay, onClose: closeOverlay }
 }
