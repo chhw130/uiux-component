@@ -1,3 +1,5 @@
+import styles from './overlay.module.css'
+
 type DialogProps = {
   isOpen: boolean
   onClose: () => void
@@ -5,14 +7,15 @@ type DialogProps = {
 
 const Dialog = ({ isOpen, onClose }: DialogProps) => {
   return (
-    <div>
-      {isOpen && (
-        <div>
+    isOpen && (
+      <div>
+        <div className={styles['overlay-content']}>
           <h2>Dialog</h2>
-          <button onClick={onClose}>Close</button>
+          <div>모달입니다.</div>
+          <button onClick={onClose}>Close / {isOpen ? 'true' : 'false'}</button>
         </div>
-      )}
-    </div>
+      </div>
+    )
   )
 }
 
