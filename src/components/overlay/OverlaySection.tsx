@@ -1,13 +1,21 @@
+import Dialog from './Dialog'
 import { useOverlay } from './useOverlay'
 
 const OverlaySection = () => {
-  const { isOpen, onOpen } = useOverlay()
+  const overlay = useOverlay()
 
   return (
     <section>
       <h2>Overlay</h2>
-      <p>isOpen: {isOpen ? 'true' : 'false'}</p>
-      <button onClick={() => onOpen(() => <div>Overlay</div>)}>Open</button>
+      <button
+        onClick={() =>
+          overlay.onOpen(({ isOpen, onClose }) => {
+            return <Dialog isOpen={isOpen} onClose={onClose} />
+          })
+        }
+      >
+        Open
+      </button>
     </section>
   )
 }

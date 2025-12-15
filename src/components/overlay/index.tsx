@@ -4,9 +4,13 @@ import styles from './overlay.module.css'
 
 type OverlayContextType = {
   isOpen: boolean
-  openOverlay: (children: () => ReactNode) => void
+  openOverlay: (callback: OpenOverlayType) => void
   closeOverlay: () => void
 }
+
+type OpenOverlayType =
+  | ReactNode
+  | ((parameters: { isOpen: boolean; onClose: () => void }) => ReactNode)
 
 export const overlayContext = createContext<OverlayContextType>({
   isOpen: false,
@@ -22,7 +26,7 @@ type OverlayComponentProps = {
 const OverlayComponent = ({ children, onClose }: OverlayComponentProps) => {
   return (
     <div className={styles['overlay-container']} onClick={onClose}>
-      <div className={styles['overlay-content']}>{children}</div>
+      {children}
     </div>
   )
 }
@@ -31,13 +35,19 @@ export const Overlay = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [overlayChildren, setOverlayChildren] = useState<ReactNode>(null)
 
-  const openOverlay = useCallback((childrenCallback: () => ReactNode) => {
-    setIsOpen(true)
-    setOverlayChildren(childrenCallback())
-  }, [])
-
   const closeOverlay = useCallback(() => {
     setIsOpen(false)
+    setOverlayChildren(null)
+  }, [])
+
+  const openOverlay = useCallback((callback: OpenOverlayType) => {
+    setIsOpen(true)
+
+    setOverlayChildren(
+      typeof callback === 'function'
+        ? callback({ isOpen: true, onClose: closeOverlay })
+        : callback,
+    )
   }, [])
 
   const clickOverlayOutside = useCallback(
@@ -46,7 +56,7 @@ export const Overlay = ({ children }: { children: ReactNode }) => {
         closeOverlay()
       }
     },
-    [closeOverlay],
+    [],
   )
 
   return (
