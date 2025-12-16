@@ -1,21 +1,49 @@
+import { useState } from 'react'
 import Dialog from './Dialog'
 import { useOverlay } from './useOverlay'
 
 const OverlaySection = () => {
   const overlay = useOverlay()
+  const [asyncValue, setAsyncValue] = useState<string | null>(null)
 
   return (
     <section>
       <h2>Overlay</h2>
       <button
-        onClick={() =>
+        onClick={async () => {
           overlay.onOpen(({ isOpen, onClose }) => {
-            return <Dialog isOpen={isOpen} onClose={onClose} />
+            return (
+              <Dialog isOpen={isOpen} onClose={onClose} onConfirm={onClose} />
+            )
           })
-        }
+        }}
       >
         Open
       </button>
+      <button
+        onClick={async () => {
+          const result = await overlay.onOpenAsync<string>(
+            ({ isOpen, onClose }) => {
+              return (
+                <Dialog
+                  isOpen={isOpen}
+                  onClose={() => {
+                    onClose('closed')
+                  }}
+                  onConfirm={() => {
+                    onClose('confirmed')
+                  }}
+                />
+              )
+            },
+          )
+          setAsyncValue(result)
+        }}
+      >
+        Open Async
+      </button>
+
+      <p>data : {asyncValue}</p>
     </section>
   )
 }
