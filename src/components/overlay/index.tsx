@@ -7,13 +7,6 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 
-type OverlayContextType = {
-  isOpen: boolean
-  openOverlay: (callback: OpenOverlayType) => void
-  closeOverlay: (value?: any) => void
-  openOverlayAsync: <T = any>(callback: OpenOverlayType) => Promise<T>
-}
-
 type OpenOverlayType =
   | ReactNode
   | ((parameters: {
@@ -21,11 +14,18 @@ type OpenOverlayType =
       onClose: (value?: any) => void
     }) => ReactNode)
 
+type OverlayContextType = {
+  isOpen: boolean
+  openOverlay: (callback: OpenOverlayType) => void
+  closeOverlay: (value?: any) => void
+  openOverlayAsync: <T>(callback: OpenOverlayType) => Promise<T>
+}
+
 export const overlayContext = createContext<OverlayContextType>({
   isOpen: false,
   openOverlay: () => {},
   closeOverlay: () => {},
-  openOverlayAsync: () => Promise.resolve(null as any),
+  openOverlayAsync: () => Promise.resolve({} as any),
 })
 
 type ResolverType = (value: any) => void
