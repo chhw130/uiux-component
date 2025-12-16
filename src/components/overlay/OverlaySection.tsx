@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import Dialog from './Dialog'
 import { useOverlay } from './useOverlay'
+import DialogExample from './DialogExample'
 
 const OverlaySection = () => {
   const overlay = useOverlay()
@@ -13,7 +13,11 @@ const OverlaySection = () => {
         onClick={async () => {
           overlay.onOpen(({ isOpen, onClose }) => {
             return (
-              <Dialog isOpen={isOpen} onClose={onClose} onConfirm={onClose} />
+              <DialogExample
+                isOpen={isOpen}
+                onClose={onClose}
+                onConfirm={onClose}
+              />
             )
           })
         }}
@@ -25,7 +29,7 @@ const OverlaySection = () => {
           const result = await overlay.onOpenAsync<string>(
             ({ isOpen, onClose }) => {
               return (
-                <Dialog
+                <DialogExample
                   isOpen={isOpen}
                   onClose={() => {
                     onClose('closed')
@@ -37,6 +41,7 @@ const OverlaySection = () => {
               )
             },
           )
+
           setAsyncValue(result)
         }}
       >

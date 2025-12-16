@@ -6,7 +6,6 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import styles from './overlay.module.css'
 
 type OverlayContextType = {
   isOpen: boolean
@@ -29,46 +28,23 @@ export const overlayContext = createContext<OverlayContextType>({
   openOverlayAsync: () => Promise.resolve(null as any),
 })
 
-type OverlayComponentProps = {
-  children: ReactNode
-  onClose: (event: React.MouseEvent<HTMLDivElement>) => void
-}
-
-const OverlayComponent = ({ children, onClose }: OverlayComponentProps) => {
-  return (
-    <div className={styles['overlay-container']} onClick={onClose}>
-      {children}
-    </div>
-  )
-}
+type ResolverType = (value: any) => void
 
 export const Overlay = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [overlayChildren, setOverlayChildren] = useState<ReactNode>(null)
 
-  const resolverRef = useRef<((value: any) => void) | null>(null)
+  const openOverlay = useCallback((callback: OpenOverlayType) => {
+    setIsOpen(true)
 
-  const closeOverlay = useCallback((value?: any) => {
-    if (resolverRef.current) {
-      resolverRef.current(value)
-      resolverRef.current = null
-    }
-    setIsOpen(false)
-    setOverlayChildren(null)
+    setOverlayChildren(
+      typeof callback === 'function'
+        ? callback({ isOpen: true, onClose: closeOverlay })
+        : callback,
+    )
   }, [])
 
-  const openOverlay = useCallback(
-    (callback: OpenOverlayType) => {
-      setIsOpen(true)
-
-      setOverlayChildren(
-        typeof callback === 'function'
-          ? callback({ isOpen: true, onClose: closeOverlay })
-          : callback,
-      )
-    },
-    [closeOverlay],
-  )
+  const resolverRef = useRef<ResolverType | null>(null)
 
   const openOverlayAsync = useCallback(
     <T,>(callback: OpenOverlayType) => {
@@ -80,27 +56,21 @@ export const Overlay = ({ children }: { children: ReactNode }) => {
     [openOverlay],
   )
 
-  const clickOverlayOutside = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (event.target === event.currentTarget) {
-        closeOverlay()
-      }
-    },
-    [closeOverlay],
-  )
+  const closeOverlay = useCallback((value?: any) => {
+    if (resolverRef.current) {
+      resolverRef.current(value)
+      resolverRef.current = null
+    }
+    setIsOpen(false)
+    setOverlayChildren(null)
+  }, [])
 
   return (
     <overlayContext.Provider
       value={{ isOpen, openOverlay, closeOverlay, openOverlayAsync }}
     >
       {children}
-      {isOpen &&
-        createPortal(
-          <OverlayComponent onClose={clickOverlayOutside}>
-            {overlayChildren}
-          </OverlayComponent>,
-          document.body,
-        )}
+      {isOpen && createPortal(overlayChildren, document.body)}
     </overlayContext.Provider>
   )
 }
