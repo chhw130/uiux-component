@@ -1,28 +1,21 @@
-import {
-  createContext,
-  useCallback,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
-import { createPortal } from 'react-dom'
+import { createContext, useCallback, useState, type ReactElement } from 'react'
+import { generateOverlayId } from './util'
+import OverlayContainer from './OverlayContainer'
 
 type OpenOverlayType =
-  | ReactNode
+  | ReactElement
   | ((parameters: {
       isOpen: boolean
       onClose: (value?: any) => void
-    }) => ReactNode)
+    }) => ReactElement)
 
 type OverlayContextType = {
-  isOpen: boolean
-  openOverlay: (callback: OpenOverlayType) => void
-  closeOverlay: (value?: any) => void
-  openOverlayAsync: <T>(callback: OpenOverlayType) => Promise<T>
+  openOverlay: (element: OpenOverlayType) => void
+  closeOverlay: (id: string, value?: any) => void
+  openOverlayAsync: <T>(element: OpenOverlayType) => Promise<T>
 }
 
 export const overlayContext = createContext<OverlayContextType>({
-  isOpen: false,
   openOverlay: () => {},
   closeOverlay: () => {},
   openOverlayAsync: () => Promise.resolve({} as any),
@@ -30,47 +23,88 @@ export const overlayContext = createContext<OverlayContextType>({
 
 type ResolverType = (value: any) => void
 
-export const Overlay = ({ children }: { children: ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [overlayChildren, setOverlayChildren] = useState<ReactNode>(null)
+export const Overlay = ({ children }: { children: ReactElement }) => {
+  const [overlayMap, setOverlayMap] = useState<
+    Map<
+      string,
+      { isOpen: boolean; element: ReactElement; resolver?: ResolverType }
+    >
+  >(new Map())
 
-  const openOverlay = useCallback((callback: OpenOverlayType) => {
-    setIsOpen(true)
+  const closeOverlay = useCallback(
+    (id: string = '', value?: any, resolver?: ResolverType) => {
+      if (resolver) {
+        resolver(value)
+      }
 
-    setOverlayChildren(
-      typeof callback === 'function'
-        ? callback({ isOpen: true, onClose: closeOverlay })
-        : callback,
-    )
-  }, [])
-
-  const resolverRef = useRef<ResolverType | null>(null)
-
-  const openOverlayAsync = useCallback(
-    <T,>(callback: OpenOverlayType) => {
-      return new Promise<T>((resolve) => {
-        openOverlay(callback)
-        resolverRef.current = resolve
+      setOverlayMap((prev) => {
+        const newMap = new Map(prev)
+        newMap.delete(id)
+        return newMap
       })
     },
-    [openOverlay],
+    [],
   )
 
-  const closeOverlay = useCallback((value?: any) => {
-    if (resolverRef.current) {
-      resolverRef.current(value)
-      resolverRef.current = null
+  const closeMiddleWare = (id?: any) => {
+    return (value?: any) => {
+      if (typeof value === 'object') {
+        closeOverlay(id, null, overlayMap.get(id)?.resolver)
+        return
+      }
+      closeOverlay(id, value, overlayMap.get(id)?.resolver)
     }
-    setIsOpen(false)
-    setOverlayChildren(null)
-  }, [])
+  }
+
+  const openOverlay = useCallback(
+    (element: OpenOverlayType, resolver?: ResolverType) => {
+      const id = generateOverlayId()
+
+      const onClose = closeMiddleWare(id)
+
+      const overlayElement =
+        typeof element === 'function'
+          ? element({
+              isOpen: true,
+              onClose,
+            })
+          : element
+
+      setOverlayMap((prev) => {
+        const newMap = new Map(prev)
+        newMap.set(id, { isOpen: true, element: overlayElement, resolver })
+        return newMap
+      })
+    },
+    [closeOverlay, overlayMap],
+  )
+
+  const openOverlayAsync = useCallback(
+    <T,>(element: OpenOverlayType) => {
+      return new Promise<T>((resolve) => {
+        openOverlay(element, resolve)
+      })
+    },
+    [openOverlay, overlayMap],
+  )
+
+  const overlayElements = Array.from(overlayMap.entries())
 
   return (
     <overlayContext.Provider
-      value={{ isOpen, openOverlay, closeOverlay, openOverlayAsync }}
+      value={{ openOverlay, closeOverlay, openOverlayAsync }}
     >
       {children}
-      {isOpen && createPortal(overlayChildren, document.body)}
+      {overlayElements.map(([id, { isOpen, element }]) => {
+        return (
+          <OverlayContainer
+            isOpen={isOpen}
+            key={id}
+            overlayId={id}
+            element={element}
+          />
+        )
+      })}
     </overlayContext.Provider>
   )
 }
