@@ -1,14 +1,12 @@
 import { type ReactElement } from 'react'
 import { createPortal } from 'react-dom'
 
-const OverlayContainer = ({
-  isOpen,
-  element,
-}: {
+type OverlayContainerProps = {
   isOpen: boolean
-  overlayId: string
   element: ReactElement
-}) => {
+}
+
+const OverlayContainer = ({ isOpen, element }: OverlayContainerProps) => {
   return isOpen && createPortal(element, document.body)
 }
 
