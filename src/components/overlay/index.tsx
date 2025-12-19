@@ -81,8 +81,12 @@ export const Overlay = ({ children }: { children: ReactElement }) => {
   )
 
   const openOverlayAsync = useCallback(<T,>(element: OpenElementType) => {
-    return new Promise<T>((resolve) => {
-      openOverlay(element, resolve)
+    return new Promise<T>((resolve, reject) => {
+      try {
+        openOverlay(element, resolve)
+      } catch (error) {
+        reject(new Error('Async Overlay Error', { cause: error }))
+      }
     })
   }, [])
 
