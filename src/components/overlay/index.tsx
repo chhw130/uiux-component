@@ -98,7 +98,18 @@ export const Overlay = ({ children }: { children: ReactElement }) => {
     >
       {children}
       {overlayElements.map(([id, { isOpen, element }]) => {
-        return <OverlayContainer isOpen={isOpen} key={id} element={element} />
+        const isLastOpenOverlay =
+          id === overlayElements[overlayElements.length - 1][0]
+
+        return (
+          <OverlayContainer
+            isOpen={isOpen}
+            key={id}
+            element={element}
+            onClose={closeMiddleWare(id)}
+            isLastOpen={isLastOpenOverlay}
+          />
+        )
       })}
     </overlayContext.Provider>
   )
