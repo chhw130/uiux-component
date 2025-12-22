@@ -21,7 +21,7 @@ const DialogExample = ({ isOpen, onClose, onConfirm }: DialogProps) => {
               <Dialog isOpen={isOpen} onClose={onClose}>
                 <h2>Dialog</h2>
                 <div>새로운 중첩 모달입니다.</div>
-                <button onClick={onClose}>Close</button>
+
                 <button onClick={onClose}>Confirm</button>
               </Dialog>
             )
