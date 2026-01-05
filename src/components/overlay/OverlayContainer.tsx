@@ -26,6 +26,9 @@ const OverlayContainer = ({
   isLastOpen,
 }: OverlayContainerProps) => {
   const modalContainerRef = useRef<HTMLDivElement>(null)
+  const rootElementRef = useRef<HTMLElement>(
+    document.querySelector('#root') as HTMLElement,
+  )
 
   useEffect(() => {
     if (!isOpen) {
@@ -34,6 +37,7 @@ const OverlayContainer = ({
 
     // 모달 Open전 focus element
     const prevFocusedElement = document.activeElement as HTMLElement
+    rootElementRef.current.setAttribute('aria-hidden', 'true')
 
     const container = modalContainerRef.current
 
@@ -81,12 +85,18 @@ const OverlayContainer = ({
     return () => {
       container?.removeEventListener('keydown', handleTabKey)
       prevFocusedElement.focus()
+      rootElementRef.current.removeAttribute('aria-hidden')
     }
   }, [isOpen, isLastOpen])
 
   return (
     isOpen &&
-    createPortal(<div ref={modalContainerRef}>{element}</div>, document.body)
+    createPortal(
+      <div aria-label="modal" ref={modalContainerRef}>
+        {element}
+      </div>,
+      document.body,
+    )
   )
 }
 
