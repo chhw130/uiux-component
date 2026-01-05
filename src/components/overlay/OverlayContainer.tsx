@@ -32,6 +32,9 @@ const OverlayContainer = ({
       return
     }
 
+    // 모달 Open전 focus element
+    const prevFocusedElement = document.activeElement as HTMLElement
+
     const container = modalContainerRef.current
 
     const focusableElements = container?.querySelectorAll(
@@ -48,7 +51,6 @@ const OverlayContainer = ({
     firstElement.focus()
 
     // 모달이 열릴 때 첫 번째 요소에 포커스
-
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose()
@@ -78,6 +80,7 @@ const OverlayContainer = ({
 
     return () => {
       container?.removeEventListener('keydown', handleTabKey)
+      prevFocusedElement.focus()
     }
   }, [isOpen, isLastOpen])
 
